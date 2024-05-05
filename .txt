@@ -1,0 +1,21 @@
+main.cpp : Le point d'entrée du programme où tout commence. Il initialisera SDL, créera une instance de jeu, et gérera la boucle principale du jeu.
+
+player.cpp et player.h : Ces fichiers vont définir la classe du joueur (gladiateur dans ce cas), avec ses attributs (comme les statistiques) et ses méthodes (comme l'amélioration des statistiques).
+
+enemy.cpp et enemy.h : De manière similaire au joueur, ces fichiers vont définir la classe des ennemis. Chaque type d'ennemi pourrait avoir différentes caractéristiques et comportements.
+
+arena.cpp et arena.h : Ces fichiers vont définir la classe de l'arène, où les combats se déroulent. Cela pourrait inclure la gestion des vagues d'ennemis et d'autres aspects de la mécanique de jeu.
+
+lobby.cpp et lobby.h : Ils géreront l'écran du lobby où le joueur peut améliorer ses statistiques, acheter de l'équipement ou autre.
+
+texture.cpp et texture.h : Pour gérer le chargement et l'affichage des textures SDL.
+
+input.cpp et input.h : Pour gérer les entrées utilisateur, telles que les mouvements du joueur et les commandes du clavier.
+
+util.cpp et util.h : Des fichiers utilitaires pour des fonctions réutilisables à travers le jeu, comme le chargement de fichiers ou la gestion des collisions.
+
+game.cpp et game.h : Ils vont définir la classe principale du jeu qui coordonne le déroulement du jeu, l'initialisation de SDL, la gestion des événements, etc.
+
+constants.h : Pour définir des constantes utilisées à travers le jeu, comme les tailles d'écran, les statistiques de joueur de base, etc.
+
+Makefile (ou un autre système de build) : Pour automatiser le processus de compilation et de construction du jeu.

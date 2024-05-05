@@ -1,56 +1,75 @@
+#include <iostream>
 #include <SDL2/SDL.h>
-#include <stdio.h>
+#include "constants.h"
 #include "player.h"
 
-#define SCREEN_WIDTH 1280 
-#define SCREEN_HEIGHT 720
+SDL_Window* gWindow = nullptr;
+SDL_Renderer* gRenderer = nullptr;
 
-int main(int argc, char** argv){
-    if(SDL_Init(SDL_INIT_VIDEO) < 0){
-        printf("Error: SDL failed to initialize\nSDL Error: '%s'\n", SDL_GetError());
-        return 1;
+bool initSDL();
+void closeSDL();
+
+int main(int argc, char* args[]) {
+    if (!initSDL()) {
+        std::cout << "Failed to initialize SDL!\n";
+        return -1;
     }
 
-    SDL_Window *window = SDL_CreateWindow("SLD test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-    if(!window){
-        printf("Error: Failed to open window\nSDL Error: '%s'\n", SDL_GetError());
-        return 1;
-    }
+    Player player;
 
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(!renderer){
-        printf("Error: Failed to create renderer\nSDL Error: '%s'\n", SDL_GetError());
-        return 1;
-    }
+    bool quit = false;
+    SDL_Event e;
 
-    SDL_Rect playerRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 50, 50}; // x, y, w, h
-    Player player(playerRect);
-
-    bool running = true;
-    while(running){
-        SDL_Event event;
-        while(SDL_PollEvent(&event)){
-            switch(event.type){
-                case SDL_QUIT:
-                    running = false;
-                    break;
+    while (!quit) {
+        while (SDL_PollEvent(&e) != 0) {
+            if (e.type == SDL_QUIT) {
+                quit = true;
             }
-            player.move(event);
+            player.handleEvent(e);
         }
 
-        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-        SDL_RenderClear(renderer);
+        player.move();
 
+        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderClear(gRenderer);
 
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // red pour le joueur
-        SDL_Rect playerRect = player.getRect();
-        SDL_RenderFillRect(renderer, &playerRect);
+        SDL_Rect playerRect = {player.mPosX, player.mPosY, PLAYER_SIZE, PLAYER_SIZE};
+        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
+        SDL_RenderFillRect(gRenderer, &playerRect);
 
-        SDL_RenderPresent(renderer);
+        SDL_RenderPresent(gRenderer);
     }
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    closeSDL();
     return 0;
+}
+
+bool initSDL() {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cout << "SDL could not initialize! SDL_Error: " << SDL_GetError() << "\n";
+        return false;
+    }
+
+    gWindow = SDL_CreateWindow("Simple SDL Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (gWindow == nullptr) {
+        std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << "\n";
+        return false;
+    }
+
+    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+    if (gRenderer == nullptr) {
+        std::cout << "Renderer could not be created! SDL_Error: " << SDL_GetError() << "\n";
+        return false;
+    }
+
+    return true;
+}
+
+void closeSDL() {
+    SDL_DestroyRenderer(gRenderer);
+    SDL_DestroyWindow(gWindow);
+    gRenderer = nullptr;
+    gWindow = nullptr;
+
+    SDL_Quit();
 }

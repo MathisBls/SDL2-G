@@ -1,16 +1,20 @@
-#ifndef PLAYER_H // include guard
+#ifndef PLAYER_H
 #define PLAYER_H
 
+#include "constants.h"
 #include <SDL2/SDL.h>
 
 class Player {
-    public:
-        Player(SDL_Rect rect);
-        void move(SDL_Event& event);
-        SDL_Rect& getRect();
+public:
+    Player();
+    void handleEvent(SDL_Event& e);
+    void move();
 
-    private:
-        SDL_Rect rect;
+    int mPosX, mPosY;
+
+private:
+    int mVelX, mVelY;
+    bool mIsShiftPressed;
 };
 
-#endif // PLAYER_H
+#endif
