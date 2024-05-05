@@ -1,8 +1,10 @@
-// map.cpp
-
 #include "map.h"
-#include "textures.h" 
+#include "textures.h"
 #include "constants.h"
+#include <SDL2/SDL_image.h>
+
+// Utilisez extern pour accéder à dungeonFloorTexture défini dans main.cpp
+extern SDL_Texture* dungeonFloorTexture;
 
 Map::Map() {
     mapData = {
@@ -15,26 +17,29 @@ void Map::loadMap(const std::vector<std::vector<int>>& data) {
 }
 
 void Map::render(SDL_Renderer* renderer) {
+    // Utilisez le renderer passé en paramètre plutôt que gRenderer
     for (size_t y = 0; y < mapData.size(); ++y) {
         for (size_t x = 0; x < mapData[y].size(); ++x) {
-            SDL_Color color;
-            switch (mapData[y][x]) {
+            SDL_Rect destRect = {static_cast<int>(x * TILE_SIZE), static_cast<int>(y * TILE_SIZE), TILE_SIZE, TILE_SIZE};            switch (mapData[y][x]) {
                 case 0:
-                    color = COLOR_GREEN;
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TEXTURE_RECT_1, &destRect);
                     break;
                 case 1:
-                    color = COLOR_RED;
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TEXTURE_RECT_2, &destRect);
+                    break;
+                case 2:
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TEXTURE_RECT_3, &destRect);
                     break;
                 default:
-                    color = COLOR_BLUE;
+                    // Cas par défaut
                     break;
             }
 
             int screenX = static_cast<int>(x * TILE_SIZE);
             int screenY = static_cast<int>(y * TILE_SIZE);
             SDL_Rect rect = {screenX, screenY, TILE_SIZE, TILE_SIZE};
-            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-            SDL_RenderFillRect(renderer, &rect);
+            // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderDrawRect(renderer, &rect);
         }
     }
 }

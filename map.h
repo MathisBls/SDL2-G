@@ -1,4 +1,4 @@
-#pragma once // include guard to prevent multiple inclusions of header file
+#pragma once
 
 #include <vector>
 #include <SDL2/SDL.h>

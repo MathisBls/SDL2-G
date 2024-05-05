@@ -4,8 +4,8 @@
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
-const int PLAYER_SIZE = 50;
-const int PLAYER_SPEED = 1;
+const int PLAYER_SIZE = 36;
+const int PLAYER_SPEED = 10;
 const int PLAYER_FAST_SPEED = 33;
 const int TILE_SIZE = 32;
 
