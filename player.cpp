@@ -78,7 +78,7 @@ void Player::move()
 void Player::renderHealthBar()
 {
         SDL_Renderer* gRenderer = nullptr;
-    SDL_Rect healthBar = {10, 10, mHealth, 10};
+    SDL_Rect healthBar = {10, 10, mHealth, 10}; //
     SDL_SetRenderDrawColor(gRenderer, 0x00, 0xFF, 0x00, 0xFF);
     SDL_RenderFillRect(gRenderer, &healthBar);
 }
@@ -91,4 +91,14 @@ void Player::updateHealth(int newHealth)
 int Player::getHealth() const
 {
     return mHealth;
+}
+
+int Player::getDamage() const
+{
+    return mDamage;
+}
+
+int Player::getSpeed() const
+{
+    return mSpeed;
 }

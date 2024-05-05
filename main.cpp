@@ -1,10 +1,12 @@
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "constants.h"
 #include "player.h"
 
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
+TTF_Font* gFont = nullptr;
 
 bool initSDL();
 void closeSDL();
@@ -29,12 +31,17 @@ int main(int argc, char* args[]) {
         }
 
         player.move();
-        player.updateHealth(10);
+        player.updateHealth(90);
 
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
         
-        // Draw health bar
+        // Check if player is dead
+        if(player.getHealth() <= 0) {
+            quit = true;
+        }
+
+    // Render player
         SDL_Rect healthBarBackground = {10, 10, 200, 20};
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
         SDL_RenderFillRect(gRenderer, &healthBarBackground);
@@ -47,7 +54,24 @@ int main(int argc, char* args[]) {
         SDL_Rect playerRect = {player.mPosX, player.mPosY, PLAYER_SIZE, PLAYER_SIZE};
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
         SDL_RenderFillRect(gRenderer, &playerRect);
-    
+
+        // std::string DamageText = "Damage: " + std::to_string(player.getDamage());
+
+        SDL_Color textColor = {0, 0, 0};
+        // SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, DamageText.c_str(), textColor);
+        // if (textSurface == nullptr) {
+        //     std::cout << "Failed to create text surface! SDL_Error: " << SDL_GetError() << "\n";
+        // } else {
+        //     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+        //     if (textTexture == nullptr) {
+        //         std::cout << "Failed to create text texture! SDL_Error: " << SDL_GetError() << "\n";
+        //     } else {
+        //         SDL_RenderCopy(gRenderer, textTexture, nullptr, nullptr);
+        //         SDL_DestroyTexture(textTexture);
+        //     }
+        //     SDL_FreeSurface(textSurface);
+        // }
+
         SDL_RenderPresent(gRenderer);
     }
 
@@ -58,6 +82,11 @@ int main(int argc, char* args[]) {
 bool initSDL() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cout << "SDL could not initialize! SDL_Error: " << SDL_GetError() << "\n";
+        return false;
+    }
+
+    if (TTF_Init() == -1) {
+        std::cout << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << "\n";
         return false;
     }
 
@@ -73,14 +102,27 @@ bool initSDL() {
         return false;
     }
 
+    gFont = TTF_OpenFont("Roman SD.ttf", 30);
+    if (gFont == nullptr) {
+        std::cout << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << "\n";
+        return false;
+    }
+
+    TTF_SetFontStyle(gFont, TTF_STYLE_NORMAL);
+    TTF_SetFontOutline(gFont, 0);
+
+    
+
     return true;
 }
 
 void closeSDL() {
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
+    TTF_CloseFont(gFont);
     gRenderer = nullptr;
     gWindow = nullptr;
+    gFont = nullptr;
 
     SDL_Quit();
 }

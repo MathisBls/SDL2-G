@@ -12,12 +12,16 @@ public:
     void renderHealthBar();
     void updateHealth(int health);
     int getHealth() const;
+    int getDamage() const;
+    int getSpeed() const;
 
     int mPosX, mPosY;
 
 private:
     int mVelX, mVelY;
     int mHealth;
+    int mDamage;
+    int mSpeed;
     bool mIsShiftPressed;
 };
 
