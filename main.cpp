@@ -29,14 +29,25 @@ int main(int argc, char* args[]) {
         }
 
         player.move();
+        player.updateHealth(10);
 
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
+        
+        // Draw health bar
+        SDL_Rect healthBarBackground = {10, 10, 200, 20};
+        SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
+        SDL_RenderFillRect(gRenderer, &healthBarBackground);
+        
+        int healthBarWidth = static_cast<int>(player.getHealth() * 2);
+        SDL_Rect healthBar = {10, 10, healthBarWidth, 20};
+        SDL_SetRenderDrawColor(gRenderer, 0x00, 0xFF, 0x00, 0xFF);
+        SDL_RenderFillRect(gRenderer, &healthBar);
 
         SDL_Rect playerRect = {player.mPosX, player.mPosY, PLAYER_SIZE, PLAYER_SIZE};
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
         SDL_RenderFillRect(gRenderer, &playerRect);
-
+    
         SDL_RenderPresent(gRenderer);
     }
 
