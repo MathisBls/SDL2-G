@@ -3,28 +3,58 @@
 #include <SDL2/SDL_ttf.h>
 #include "constants.h"
 #include "player.h"
+#include "map.h"
 
-SDL_Window* gWindow = nullptr;
-SDL_Renderer* gRenderer = nullptr;
-TTF_Font* gFont = nullptr;
+SDL_Window *gWindow = nullptr;
+SDL_Renderer *gRenderer = nullptr;
+TTF_Font *gFont = nullptr;
 
 bool initSDL();
 void closeSDL();
 
-int main(int argc, char* args[]) {
-    if (!initSDL()) {
+int main(int argc, char *args[])
+{
+    if (!initSDL())
+    {
         std::cout << "Failed to initialize SDL!\n";
         return -1;
     }
 
     Player player;
+    Map map;
+
+    std::vector<std::vector<int>> mapData = {
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1},
+        {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},
+        {1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
     bool quit = false;
     SDL_Event e;
 
-    while (!quit) {
-        while (SDL_PollEvent(&e) != 0) {
-            if (e.type == SDL_QUIT) {
+    while (!quit)
+    {
+        while (SDL_PollEvent(&e) != 0)
+        {
+            if (e.type == SDL_QUIT)
+            {
                 quit = true;
             }
             player.handleEvent(e);
@@ -32,20 +62,23 @@ int main(int argc, char* args[]) {
 
         player.move();
         player.updateHealth(90);
+        map.loadMap(mapData);
 
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
-        
+        map.render(gRenderer);
+
         // Check if player is dead
-        if(player.getHealth() <= 0) {
+        if (player.getHealth() <= 0)
+        {
             quit = true;
         }
 
-    // Render player
+        // Render player
         SDL_Rect healthBarBackground = {10, 10, 200, 20};
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
         SDL_RenderFillRect(gRenderer, &healthBarBackground);
-        
+
         int healthBarWidth = static_cast<int>(player.getHealth() * 2);
         SDL_Rect healthBar = {10, 10, healthBarWidth, 20};
         SDL_SetRenderDrawColor(gRenderer, 0x00, 0xFF, 0x00, 0xFF);
@@ -79,31 +112,37 @@ int main(int argc, char* args[]) {
     return 0;
 }
 
-bool initSDL() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+bool initSDL()
+{
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    {
         std::cout << "SDL could not initialize! SDL_Error: " << SDL_GetError() << "\n";
         return false;
     }
 
-    if (TTF_Init() == -1) {
+    if (TTF_Init() == -1)
+    {
         std::cout << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << "\n";
         return false;
     }
 
     gWindow = SDL_CreateWindow("Simple SDL Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (gWindow == nullptr) {
+    if (gWindow == nullptr)
+    {
         std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << "\n";
         return false;
     }
 
     gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
-    if (gRenderer == nullptr) {
+    if (gRenderer == nullptr)
+    {
         std::cout << "Renderer could not be created! SDL_Error: " << SDL_GetError() << "\n";
         return false;
     }
 
     gFont = TTF_OpenFont("Roman SD.ttf", 30);
-    if (gFont == nullptr) {
+    if (gFont == nullptr)
+    {
         std::cout << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << "\n";
         return false;
     }
@@ -111,12 +150,11 @@ bool initSDL() {
     TTF_SetFontStyle(gFont, TTF_STYLE_NORMAL);
     TTF_SetFontOutline(gFont, 0);
 
-    
-
     return true;
 }
 
-void closeSDL() {
+void closeSDL()
+{
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
     TTF_CloseFont(gFont);
