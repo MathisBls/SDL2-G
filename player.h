@@ -10,18 +10,20 @@ public:
     void handleEvent(SDL_Event& e);
     void move();
     void renderHealthBar();
+    void render();
     void updateHealth(int health);
     int getHealth() const;
-    int getDamage() const;
-    int getSpeed() const;
 
     int mPosX, mPosY;
 
 private:
     int mVelX, mVelY;
     int mHealth;
-    int mDamage;
-    int mSpeed;
+    SDL_Texture* mIdleTexture;
+    SDL_Texture* mWalkTexture;
+    int mCurrentFrame;
+    int mFrameWidth;
+    int mFrameHeight;
     bool mIsShiftPressed;
 };
 

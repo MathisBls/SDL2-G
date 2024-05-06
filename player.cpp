@@ -1,5 +1,9 @@
 #include "player.h"
+#include "constants.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
+extern SDL_Renderer* gRenderer;
 
 Player::Player()
 {
@@ -7,6 +11,24 @@ Player::Player()
     mPosY = SCREEN_HEIGHT / 2 - PLAYER_SIZE / 2;
     mVelX = 0;
     mVelY = 0;
+    mHealth = 100;
+    mCurrentFrame = 0;
+    
+
+    SDL_Surface* idleSurface = IMG_Load("assets/mainchar_idle.png");
+    SDL_Surface* walkSurface = IMG_Load("assets/mainchar_walk.png");
+
+    mIdleTexture = SDL_CreateTextureFromSurface(gRenderer, idleSurface);
+    mWalkTexture = SDL_CreateTextureFromSurface(gRenderer, walkSurface);
+
+    SDL_FreeSurface(idleSurface);
+    SDL_FreeSurface(walkSurface);
+
+    // sachant que l'image total fait 384 x 768
+
+    mFrameWidth = 384;
+    mFrameHeight = 768;
+
 }
 
 void Player::handleEvent(SDL_Event &e)
@@ -17,19 +39,18 @@ void Player::handleEvent(SDL_Event &e)
         switch (e.key.keysym.sym)
         {
         case SDLK_UP:
-            mVelY -= PLAYER_SPEED;
+            mVelY -= 1;
             break;
         case SDLK_DOWN:
-            mVelY += PLAYER_SPEED;
+            mVelY += 1;
             break;
         case SDLK_LEFT:
-            mVelX -= PLAYER_SPEED;
+            mVelX -= 1;
             break;
         case SDLK_RIGHT:
-            mVelX += PLAYER_SPEED;
+            mVelX += 1;
             break;
         case SDLK_LSHIFT:
-        case SDLK_RSHIFT:
             mIsShiftPressed = true;
             break;
         }
@@ -39,19 +60,18 @@ void Player::handleEvent(SDL_Event &e)
         switch (e.key.keysym.sym)
         {
         case SDLK_UP:
-            mVelY += PLAYER_SPEED;
+            mVelY += 1;
             break;
         case SDLK_DOWN:
-            mVelY -= PLAYER_SPEED;
+            mVelY -= 1;
             break;
         case SDLK_LEFT:
-            mVelX += PLAYER_SPEED;
+            mVelX += 1;
             break;
         case SDLK_RIGHT:
-            mVelX -= PLAYER_SPEED;
+            mVelX -= 1;
             break;
         case SDLK_LSHIFT:
-        case SDLK_RSHIFT:
             mIsShiftPressed = false;
             break;
         }
@@ -77,10 +97,26 @@ void Player::move()
 
 void Player::renderHealthBar()
 {
-        SDL_Renderer* gRenderer = nullptr;
+
     SDL_Rect healthBar = {10, 10, mHealth, 10}; //
     SDL_SetRenderDrawColor(gRenderer, 0x00, 0xFF, 0x00, 0xFF);
     SDL_RenderFillRect(gRenderer, &healthBar);
+}
+
+void Player::render()
+{
+    SDL_Rect srcRect = {0, mCurrentFrame * mFrameHeight, mFrameWidth, mFrameHeight};
+    SDL_Rect destRect = {mPosX, mPosY, mFrameWidth, mFrameHeight};
+
+    if(mVelX == 0 && mVelY == 0)
+    {
+        SDL_RenderCopy(gRenderer, mIdleTexture, &srcRect, &destRect);
+    } else {
+        SDL_RenderCopy(gRenderer, mWalkTexture, &srcRect, &destRect);
+    }
+
+    mCurrentFrame = (mCurrentFrame + 1) % 8;
+
 }
 
 void Player::updateHealth(int newHealth)
@@ -93,12 +129,12 @@ int Player::getHealth() const
     return mHealth;
 }
 
-int Player::getDamage() const
-{
-    return mDamage;
-}
+// int Player::getDamage() const
+// {
+//     return mDamage;
+// }
 
-int Player::getSpeed() const
-{
-    return mSpeed;
-}
+// int Player::getSpeed() const
+// {
+//     return mSpeed;
+// }
