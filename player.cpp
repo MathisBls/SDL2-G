@@ -13,10 +13,11 @@ Player::Player()
     mVelY = 0;
     mHealth = 100;
     mCurrentFrame = 0;
+    mLastAnimationFrameTime = SDL_GetTicks();
     
 
-    SDL_Surface* idleSurface = IMG_Load("assets/mainchar_idle.png");
-    SDL_Surface* walkSurface = IMG_Load("assets/mainchar_walk.png");
+    SDL_Surface* idleSurface = IMG_Load("assets/sprites/mainchar_idle.png");
+    SDL_Surface* walkSurface = IMG_Load("assets/sprites/mainchar_walk.png");
 
     mIdleTexture = SDL_CreateTextureFromSurface(gRenderer, idleSurface);
     mWalkTexture = SDL_CreateTextureFromSurface(gRenderer, walkSurface);
@@ -26,32 +27,29 @@ Player::Player()
 
     // sachant que l'image total fait 384 x 768
 
-    mFrameWidth = 384;
-    mFrameHeight = 768;
+    mFrameWidth = 192;
+    mFrameHeight = 192;
 
 }
 
 void Player::handleEvent(SDL_Event &e)
 {
-
+    float speed = PLAYER_SPEED;
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0)
     {
         switch (e.key.keysym.sym)
         {
         case SDLK_UP:
-            mVelY -= 1;
+            mVelY = -speed;
             break;
         case SDLK_DOWN:
-            mVelY += 1;
+            mVelY = speed;
             break;
         case SDLK_LEFT:
-            mVelX -= 1;
+            mVelX = -speed;
             break;
         case SDLK_RIGHT:
-            mVelX += 1;
-            break;
-        case SDLK_LSHIFT:
-            mIsShiftPressed = true;
+            mVelX = speed;
             break;
         }
     }
@@ -60,16 +58,16 @@ void Player::handleEvent(SDL_Event &e)
         switch (e.key.keysym.sym)
         {
         case SDLK_UP:
-            mVelY += 1;
+            mVelY = 0;
             break;
         case SDLK_DOWN:
-            mVelY -= 1;
+            mVelY = 0;
             break;
         case SDLK_LEFT:
-            mVelX += 1;
+            mVelX = 0;
             break;
         case SDLK_RIGHT:
-            mVelX -= 1;
+            mVelX = 0;
             break;
         case SDLK_LSHIFT:
             mIsShiftPressed = false;
@@ -80,18 +78,26 @@ void Player::handleEvent(SDL_Event &e)
 
 void Player::move()
 {
-    int speed = mIsShiftPressed ? PLAYER_FAST_SPEED : PLAYER_SPEED;
 
     mPosX += mVelX;
     mPosY += mVelY;
 
-    if (mPosX < 0 || mPosX + PLAYER_SIZE > SCREEN_WIDTH)
+    if (mPosX < 0)
     {
-        mPosX -= mVelX * speed;
+        mPosX = 0;
     }
-    if (mPosY < 0 || mPosY + PLAYER_SIZE > SCREEN_HEIGHT)
+    else if (mPosX + PLAYER_SIZE > SCREEN_WIDTH)
     {
-        mPosY -= mVelY * speed;
+        mPosX = SCREEN_WIDTH - PLAYER_SIZE;
+    }
+
+    if (mPosY < 0)
+    {
+        mPosY = 0;
+    }
+    else if (mPosY + PLAYER_SIZE > SCREEN_HEIGHT)
+    {
+        mPosY = SCREEN_HEIGHT - PLAYER_SIZE;
     }
 }
 
@@ -105,19 +111,55 @@ void Player::renderHealthBar()
 
 void Player::render()
 {
-    SDL_Rect srcRect = {0, mCurrentFrame * mFrameHeight, mFrameWidth, mFrameHeight};
-    SDL_Rect destRect = {mPosX, mPosY, mFrameWidth, mFrameHeight};
 
-    if(mVelX == 0 && mVelY == 0)
+    Uint32 currentTicks = SDL_GetTicks();
+    if (currentTicks - mLastAnimationFrameTime >= 100)
     {
-        SDL_RenderCopy(gRenderer, mIdleTexture, &srcRect, &destRect);
-    } else {
-        SDL_RenderCopy(gRenderer, mWalkTexture, &srcRect, &destRect);
+        if (mVelX == 0 && mVelY == 0)
+        {
+            mCurrentFrame = (mCurrentFrame + 1) % 2; // animation en boucle sur 2 frames
+        }
+        else
+        {
+            mCurrentFrame = (mCurrentFrame + 1) % 8; // animation pour le personnage en marche
+        }
+        mLastAnimationFrameTime = currentTicks;
     }
 
-    mCurrentFrame = (mCurrentFrame + 1) % 8;
+    int frameRow = 0;
+    if (mVelX < 0)
+    {
+        frameRow = 1; // vers la gauche
+    }
+    else if (mVelX > 0)
+    {
+        frameRow = 3; // vers la droite
+    }
+    else if (mVelY < 0)
+    {
+        frameRow = 0; // dos
+    }
+    else if (mVelY > 0)
+    {
+        frameRow = 2; // vers le bas
+    }
 
+    SDL_Rect srcRect = {mCurrentFrame * mFrameWidth, frameRow * mFrameHeight, mFrameWidth, mFrameHeight};
+    SDL_Rect destRect = {mPosX, mPosY, mFrameWidth, mFrameHeight};
+
+    if (mVelX == 0 && mVelY == 0)
+    {
+        // Animation en idle
+        SDL_RenderCopy(gRenderer, mIdleTexture, &srcRect, &destRect);
+    }
+    else
+    {
+        // Animation en marche
+        SDL_RenderCopy(gRenderer, mWalkTexture, &srcRect, &destRect);
+        
+    }
 }
+
 
 void Player::updateHealth(int newHealth)
 {

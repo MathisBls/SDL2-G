@@ -31,8 +31,10 @@ int main(int argc, char* args[]) {
 
     };
 
-    bool quit = false;
+   bool quit = false;
     SDL_Event e;
+    Uint32 LastFrameTime = SDL_GetTicks();
+    const Uint32 FrameDelay = 1000 / 60; // 60 FPS
 
     while (!quit) {
         while (SDL_PollEvent(&e) != 1) {
@@ -87,6 +89,15 @@ int main(int argc, char* args[]) {
         // }
 
         SDL_RenderPresent(gRenderer);
+
+
+    Uint32 currentTicks = SDL_GetTicks();
+    Uint32 deltaTime = currentTicks - LastFrameTime;
+    if(deltaTime < FrameDelay)
+    {
+        SDL_Delay(FrameDelay - deltaTime);
+    }   
+    LastFrameTime = currentTicks;
     }
 
     closeSDL();

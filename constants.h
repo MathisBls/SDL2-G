@@ -7,9 +7,9 @@
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 const int PLAYER_SIZE = 36;
-const int PLAYER_SPEED = 10;
-const int PLAYER_FAST_SPEED = 33;
-const int TILE_SIZE = 32;
+const int PLAYER_SPEED = 5;
+const int PLAYER_FAST_SPEED = 1;
+const int TILE_SIZE = 64;
 
 // extern SDL_Renderer* gRenderer = nullptr;
 

@@ -24,6 +24,7 @@ private:
     int mCurrentFrame;
     int mFrameWidth;
     int mFrameHeight;
+    Uint32 mLastAnimationFrameTime;
     bool mIsShiftPressed;
 };
 
