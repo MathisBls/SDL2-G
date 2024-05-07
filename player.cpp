@@ -1,11 +1,15 @@
 #include "player.h"
 #include "constants.h"
+#include "coin.h"
+#include "game.h"
+#include "map.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <cmath>
 #include <iostream>
 
 extern SDL_Renderer* gRenderer;
+Map map;
 
 Player::Player()
 {
@@ -174,46 +178,61 @@ void Player::render() {
 
 }
 
-void Player::move()
+void Player::setWallRects(const std::vector<SDL_Rect>& rects)
 {
+    wallRects = rects;
+}
 
-    int coinPosX = 32;
-    int coinPosY = 192;
-    int distance = sqrt(pow(mPosX - coinPosX, 2) + pow(mPosY - coinPosY, 2));
+bool Player::checkCollision() const
+{
+    SDL_Rect playerRect = {mPosX, mPosY, mFrameWidth, mFrameHeight};
+    for (const auto& wallRect : wallRects)
+    {
+        if (SDL_HasIntersection(&playerRect, &wallRect))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Player::move() {
+    // Sauvegardez les anciennes positions du joueur
+    int oldPosX = mPosX;
+    int oldPosY = mPosY;
 
     mPosX += mVelX;
     mPosY += mVelY;
 
-    if (mPosX < 0)
-    {
+    for (const auto& wallRect : wallRects) {
+        SDL_Rect playerRect = {mPosX, mPosY, mFrameWidth, mFrameHeight};
+        if (SDL_HasIntersection(&playerRect, &wallRect)) {
+            mPosX = oldPosX;
+            mPosY = oldPosY;
+            break;
+        }
+    }
+
+    if (mPosX < 0) {
         mPosX = 0;
-    }
-    else if (mPosX + PLAYER_SIZE > SCREEN_WIDTH)
-    {
-        mPosX = SCREEN_WIDTH - PLAYER_SIZE;
+    } else if (mPosX + mFrameWidth > SCREEN_WIDTH) {
+        mPosX = SCREEN_WIDTH - mFrameWidth;
     }
 
-    if (mPosY < 0)
-    {
+    if (mPosY < 0) {
         mPosY = 0;
-    }
-    else if (mPosY + PLAYER_SIZE > SCREEN_HEIGHT)
-    {
-        mPosY = SCREEN_HEIGHT - PLAYER_SIZE;
+    } else if (mPosY + mFrameHeight > SCREEN_HEIGHT) {
+        mPosY = SCREEN_HEIGHT - mFrameHeight;
     }
 
-
-    if (distance < 10)
-    {
-        mMoney += 5;
-        std::cout << "Money: " << mMoney << std::endl;
-    }
+    std::cout << "x: " << mPosX << " y: " << mPosY << std::endl;
 }
+
 
 void Player::renderHealthBar()
 {
 
-    SDL_Rect healthBar = {10, 10, mHealth, 10}; //
+    SDL_Rect healthBar = {10, 10, mHealth, 10}; 
     SDL_SetRenderDrawColor(gRenderer, 0x00, 0xFF, 0x00, 0xFF);
     SDL_RenderFillRect(gRenderer, &healthBar);
 }

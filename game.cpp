@@ -9,15 +9,21 @@ extern SDL_Renderer* gRenderer;
 Game::Game() {
     loadTextures();
     generateCoins();
-    
 }
 
 void Game::loadTextures() {
-    mCoinTexture = IMG_LoadTexture(gRenderer, "assets/coin.png");
-    if (mCoinTexture == nullptr) {
-        std::cout << "Failed to load coin texture! SDL_Error: " << SDL_GetError() << "\n";
+    SDL_Surface* coinSurface = IMG_Load("assets/coin.png");
+    if (coinSurface == nullptr) {
+        std::cout << "Failed to load coin surface! SDL_Error: " << SDL_GetError() << "\n";
+    } else {
+        mCoinTexture = SDL_CreateTextureFromSurface(gRenderer, coinSurface);
+        if (mCoinTexture == nullptr) {
+            std::cout << "Failed to create coin texture from surface! SDL_Error: " << SDL_GetError() << "\n";
+        }
+        SDL_FreeSurface(coinSurface);
     }
 }
+
 
 void Game::generateCoins() {
     int x = rand() % SCREEN_WIDTH;

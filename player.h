@@ -1,8 +1,10 @@
+// Dans player.h
 #ifndef PLAYER_H
 #define PLAYER_H
 
 #include "constants.h"
 #include <SDL2/SDL.h>
+#include <vector> // Ajout de l'inclusion de la bibliothèque vector
 
 enum class Direction {
     UP,
@@ -35,12 +37,15 @@ public:
     void render();
     void updateHealth(int health);
     int getHealth() const;
+    void setWallRects(const std::vector<SDL_Rect>& rects); // Correction de la signature de la fonction
+    bool checkCollision() const;
 
     int mPosX, mPosY;
 
 private:
     int mVelX, mVelY;
     int mHealth;
+    std::vector<SDL_Rect> wallRects;
     SDL_Texture* mIdleTexture;
     SDL_Texture* mWalkTexture;
     SDL_Texture* mSlashTexture;
@@ -52,7 +57,7 @@ private:
     int mMoney;
     Uint32 mLastAnimationFrameTime;
     bool mIsShiftPressed;
-    Direction mLastDirection; // Nouvelle variable pour stocker la dernière direction
+    Direction mLastDirection;
     AttackState mAttackState;
     DefenseState mDefenseState;
     AfterAttackState mAfterAttackState;

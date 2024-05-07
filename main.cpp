@@ -8,11 +8,14 @@
 #include "map.h"
 #include "coin.h"
 #include "game.h"
+#include "enemy.h"
+#include "enemyManager.h"
 
 SDL_Window *gWindow = nullptr;
 SDL_Renderer *gRenderer = nullptr;
 TTF_Font *gFont = nullptr;
 SDL_Texture *dungeonFloorTexture = nullptr;
+SDL_Texture *dungeonWallTexture = nullptr;
 SDL_Texture *mCoinTexture = nullptr;
 
 bool initSDL();
@@ -29,21 +32,26 @@ int main(int argc, char *args[])
     Player player;
     Map map;
     Game game;
+    EnemyManager enemyManager;
 
     std::vector<std::vector<int>> mapData = {
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 3, 4, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 6, 7, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 9, 10, 11, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {13, 13, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 13, 13, 13, 13},
+        {13, 13, 16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 15, 13, 13},
+        {13, 13, 12, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 19, 17, 13, 13},
+        {13, 13, 12, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 20, 17, 13, 13},
+        {13, 13, 12, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 17, 13, 13},
+        {13, 13, 12, 1, 1, 1, 1, 1, 3, 4, 5, 1, 1, 1, 1, 1, 1, 17, 13, 13},
+        {13, 13, 12, 1, 1, 1, 1, 1, 6, 7, 8, 1, 1, 1, 1, 1, 1, 17, 13, 13},
+        {13, 13, 12, 1, 1, 1, 1, 1, 9, 10, 11, 1, 1, 1, 1, 1, 1, 17, 13, 13},
+        {13, 13, 12, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 17, 13, 13},
+        {13, 13, 14, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 13, 13},
+        {13, 13, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 13, 13},
+        {13, 13, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 13, 13},
     };
+
+    game.loadTextures();
+    game.generateCoins();
+    enemyManager.generateRandomEnemies(5, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     bool quit = false;
     SDL_Event e;
@@ -90,8 +98,15 @@ int main(int argc, char *args[])
         SDL_Rect healthBar = {10, 10, healthBarWidth, 20};
         SDL_SetRenderDrawColor(gRenderer, 0x00, 0xFF, 0x00, 0xFF);
         SDL_RenderFillRect(gRenderer, &healthBar);
-
+        // Render coins
+        // for (const auto &coin : game.getCoins())
+        // {
+        //     coin.render(gRenderer);
+        // }
         player.render();
+
+        //Render enemies
+        enemyManager.renderer(gRenderer);
 
         SDL_RenderPresent(gRenderer);
 
@@ -101,18 +116,7 @@ int main(int argc, char *args[])
         {
             SDL_Delay(frameDelay - frameTime);
         }
-
-        game.loadTextures(); 
-
-        for(auto &coin : game.getCoins()) {
-            int newX = rand() % SCREEN_WIDTH;
-            int newY = rand() % SCREEN_HEIGHT;
-            coin.move(newX, newY);
-            coin.render(gRenderer);
-}
-
     }
-
 
     closeSDL();
     return 0;
@@ -160,6 +164,13 @@ bool initSDL()
         return false;
     }
 
+    dungeonWallTexture = IMG_LoadTexture(gRenderer, "assets/Dungeon_Walls.png");
+    if (dungeonWallTexture == nullptr)
+    {
+        std::cout << "Failed to load image! SDL_image Error: " << IMG_GetError() << "\n";
+        return false;
+    }
+
     SDL_Texture *coinTexture = IMG_LoadTexture(gRenderer, "assets/coin.png");
     if (coinTexture == nullptr)
     {
@@ -185,6 +196,7 @@ void closeSDL()
 {
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyTexture(dungeonFloorTexture);
+    SDL_DestroyTexture(dungeonWallTexture);
     SDL_DestroyTexture(mCoinTexture);
     SDL_DestroyWindow(gWindow);
     TTF_CloseFont(gFont);
