@@ -11,6 +11,9 @@ const int PLAYER_SPEED = 5;
 const int PLAYER_FAST_SPEED = 1;
 const int TILE_SIZE = 64;
 
+//items
+const int PLAYER_MONEY = 0;
+
 // extern SDL_Renderer* gRenderer = nullptr;
 
 

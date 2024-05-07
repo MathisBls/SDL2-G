@@ -31,6 +31,33 @@ void Map::render(SDL_Renderer* renderer) {
                 case 2:
                     SDL_RenderCopy(renderer, dungeonFloorTexture, &TEXTURE_RECT_3, &destRect);
                     break;
+                case 3:
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TRAP_1, &destRect);
+                    break;
+                case 4:
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TRAP_2, &destRect);
+                    break;
+                case 5:
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TRAP_3, &destRect);
+                    break;
+                case 6:
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TRAP_4, &destRect);
+                    break;
+                case 7:
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TRAP_5, &destRect);
+                    break;
+                case 8:
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TRAP_6, &destRect);
+                    break;
+                case 9:
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TRAP_7, &destRect);
+                    break;
+                case 10:
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TRAP_8, &destRect);
+                    break;
+                case 11:
+                    SDL_RenderCopy(renderer, dungeonFloorTexture, &TRAP_9, &destRect);
+                    break;
                 default:
                     // Cas par défaut
                     break;
